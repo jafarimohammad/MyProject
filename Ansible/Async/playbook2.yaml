@@ -1,0 +1,19 @@
+- name: Async
+  hosts: webservers
+  gather_facts: no
+  vars:
+   packages:
+    - nginx
+  tasks:
+   - name: Installation Block
+     shell: sleep 153
+     async: 100
+     poll: 0
+     register: yum_state
+
+   - name: Check Finished
+     async_status:
+      jid: "{{ yum_state.ansible_job_id }}" 
+     register: job_result
+     until: job_result.finished
+
