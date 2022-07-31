@@ -1,2 +1,0 @@
-#!/bin/bash
-echo {\"port\":\"`netstat -ntlp | grep php-fpm | awk '{print $4}' | awk -F':' '{print $2}'`\"}
