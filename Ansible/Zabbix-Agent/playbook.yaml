@@ -1,0 +1,64 @@
+- name: installing Zabbix-Aent2 
+  hosts: webservers
+  vars_prompt:
+   - name: servername 
+     prompt: Enter Zabbix Server (FQDN)
+     private: no
+   - name: username
+     prompt: Enter Zabbix username
+     private: no
+   - name: password
+     prompt: Enter Zabbix password
+     private: yes
+
+  tasks:
+   - name: Install Repository Zabbix
+     copy:
+      src: files/zabbix.repo
+      dest: /etc/yum.repos.d/zabbix.repo 
+     when: ( ansible_fqdn != servername )
+
+   - name: Install zabbix-agent2
+     yum:
+      name: zabbix-agent2
+      state: present
+     when: ( ansible_fqdn != servername )
+
+   - name: Copy Config File Zabbix-Agent
+     template:
+      src: templates/zabbix_agent2.j2
+      dest: /etc/zabbix/zabbix_agent2.conf
+     notify:
+      - Restart Zabbix-Agent2
+     when: ( ansible_fqdn != servername )
+
+   - name: Create New Host 
+     local_action:
+       module: zabbix_host
+       server_url: http://{{ servername }} 
+       login_user: "{{ username }}"
+       login_password: "{{ password }}"
+       host_name: "{{ ansible_hostname }}"
+       host_groups:
+         - Linux servers
+       link_templates:
+         - Linux by Zabbix agent
+       status: enabled
+       state: present
+       interfaces:
+         - type: 1
+           main: 1
+           useip: 1
+           ip: "{{ ansible_default_ipv4.address }}"
+           dns: ""
+           port: 10050
+     delegate_to: "{{ servername }}"
+     when: ( ansible_fqdn != servername )
+
+
+  handlers:
+   - name: Restart Zabbix-Agent2
+     service:
+      name: zabbix-agent2
+      state: restarted
+
