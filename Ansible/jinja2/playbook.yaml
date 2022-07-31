@@ -1,0 +1,35 @@
+ - name: installing some Packages
+   hosts: webservers
+   vars_files:
+    - vars/external_variables.yaml
+
+   tasks:
+    - name:  install nginx
+      yum:
+       name: "{{ packages }}"
+       state: present 
+
+    - name: make directory
+      file:
+       path: /etc/nginx/conf.d
+       state: directory
+
+    - name: Copy Content File
+      template:
+       src: content/index.j2
+       dest: /usr/share/nginx/html/index.html
+      notify:
+          - Restart Nginx
+
+    - name: Copy Config File
+      template:
+       src: templates/nginx.j2
+       dest: /etc/nginx/conf.d/nginx.conf
+      notify:
+          - Restart Nginx   
+
+   handlers:
+    - name: Restart Nginx
+      service:
+       name: nginx
+       state: restarted
