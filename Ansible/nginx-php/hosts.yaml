@@ -1,0 +1,5 @@
+all:
+ children:
+  webservers:
+   hosts:
+    Ansible-Client-01
