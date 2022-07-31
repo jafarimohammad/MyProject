@@ -1,0 +1,6 @@
+ 
+{% if ansible_hostname == "ansible-client-01" -%}
+	 {{ ansible_memory_mb }}
+{% else %}
+	This Fucking Variables.
+{% endif %}
