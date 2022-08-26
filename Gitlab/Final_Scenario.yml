@@ -1,0 +1,46 @@
+stages:
+  - build
+  - testbuild
+  - deploy
+
+variables:
+   CI_REPO_USER: admin
+   CI_REPO_PASS: admin
+   CI_REPO: nexus.local:9100
+   CI_SERVICE_NAME: app
+   CI_IMAGE_TAG: latest
+   CI_CONTAINER_NAME: myapp
+   CI_arti_path: build_image
+   CI_SSH_USER: root
+   CI_SSH_HOST: 192.168.60.180
+
+
+Build App:
+  stage: build
+  script:
+    - docker login $CI_REPO -u $CI_REPO_USER -p $CI_REPO_PASS
+    - docker build -t $CI_REPO/$CI_SERVICE_NAME:$CI_IMAGE_TAG .
+    - docker push $CI_REPO/$CI_SERVICE_NAME:$CI_IMAGE_TAG
+    - mkdir $CI_arti_path && cd $CI_arti_path
+    - docker image save $CI_REPO/$CI_SERVICE_NAME:$CI_IMAGE_TAG -o ./$CI_SERVICE_NAME
+  artifacts:
+    paths:
+      - build_image
+
+Test_Build:
+  stage: testbuild
+  script:
+    - docker container run -d --name $CI_CONTAINER_NAME $CI_REPO/$CI_SERVICE_NAME:$CI_IMAGE_TAG
+    - docker container logs $CI_CONTAINER_NAME | grep -q 'Hello Docker Class!'
+    - docker container rm $CI_CONTAINER_NAME
+
+      
+Deploy:
+  stage: deploy
+  script:
+    - ssh -T $CI_SSH_USER@$CI_SSH_HOST "docker login $CI_REPO -u $CI_REPO_USER -p $CI_REPO_PASS && docker pull $CI_REPO/$CI_SERVICE_NAME:$CI_IMAGE_TAG && if docker container ls -a | grep $CI_CONTAINER_NAME; then docker container stop $CI_CONTAINER_NAME && docker container rm $CI_CONTAINER_NAME; fi && docker container run -d --name $CI_CONTAINER_NAME $CI_REPO/$CI_SERVICE_NAME:$CI_IMAGE_TAG && exit"
+      
+      
+      
+      
+   
