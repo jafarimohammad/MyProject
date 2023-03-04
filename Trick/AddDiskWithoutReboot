@@ -1,9 +1,11 @@
+#UBUNTU-20.04
 ls /sys/class/scsi_host
 echo "- - -" | tee /sys/class/scsi_host/host*/scan
 lsblk
 fdisk /dev/sdb
 mkdir /disk
 mkfs.xfs /dev/sdb1
-vi /etc/fstab =>  /dev/sdb1               /disk                 xfs     defaults        0 0
+vi /etc/fstab: #ADD Below Line:
+/dev/sdb1               /disk                 xfs     defaults        0 0
 e2label /dev/sdb1 /Nexus
 mount /dev/sdb1 /disk
