@@ -133,3 +133,12 @@ curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/ca
 
 kubectl apply -f calico.yaml
 ```
+--------------------------------------------------------------------------------------------------------
+## after restart cluster:
+```
+iptables -F
+systemctl restart containerd
+systemctl restart kubelet
+
+```
+
