@@ -134,6 +134,14 @@ curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/ca
 kubectl apply -f calico.yaml
 ```
 --------------------------------------------------------------------------------------------------------
+## step 6: join node
+```
+kubeadm token list
+kubeadm token create --print-join-command
+# kubeadm token delete token_id
+```
+--------------------------------------------------------------------------------------------------------
+
 ## after restart cluster:
 ```
 iptables -F
