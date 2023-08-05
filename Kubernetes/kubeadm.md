@@ -106,6 +106,30 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
+------------------------------------------------------------------------------------------------
+
+## step 4: kubeadm initialize
+```
+https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/
+```
+```
+kubeadm config images pull
+kubeadm init --apiserver-advertise-address 192.168... --pod-network-cidr 10.96.0.0/12
+
+#for import image => ctr image import image.tar
+```
+```
+export KUBECONFIG=/etc/kubernetes/admin.conf
+```
 --------------------------------------------------------------------------------------------------------
 
-## step 4:
+## step 5: install calico
+```
+https://docs.tigera.io/calico/latest/getting-started/kubernetes/self-managed-onprem/onpremises
+```
+```
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico-typha.yaml -o calico.yaml
+# Change CALICO_IPV4POOL_CIDR value to 10.96.0.0/12
+
+kubectl apply -f calico.yaml
+```
