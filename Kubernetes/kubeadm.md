@@ -142,6 +142,37 @@ kubeadm token create --print-join-command
 ```
 --------------------------------------------------------------------------------------------------------
 
+## step 7: Config cgroup driver
+every node:
+
+for containerd:
+```
+mkdir /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+
+# edit /etc/containerd/config.toml :
+# /SystemdCgroup = true
+systemctl restart containerd
+```
+
+for kubelet:
+```
+vim /etc/kubernetes/kubelet-systemd.conf =>
+
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: kubeletConfiguration
+cgroupDriver: systemd
+
+vim /usr/bin/systemd/system/kubelet.service.d =>
+
+ExecStart= + --config /etc/kubernetes/kubelet-systemd.conf
+```
+```
+systemctl daemon-reload
+systemctl restart kubelet
+```
+-------------------------------------------------------------------------------------------------------
+
 ## after restart cluster:
 ```
 iptables -F
